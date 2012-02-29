@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+<com.google.android.maps.MapView android:id="@+id/map"
+  android:layout_width="fill_parent" 
+    android:layout_height="fill_parent" 
+    android:apiKey="0_z4IHjB6EnXDOy4pa7PzIfXHNRkXf-iigoVmhg" 
+    android:clickable="true">
+    </com.google.android.maps.MapView>
+    
+    <TextView android:id="@+id/filtertext"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Displaying All Barges"
+        android:textColor="#000"/>
+</RelativeLayout>

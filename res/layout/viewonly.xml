@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    <RadioGroup 
+        android:id="@+id/radio"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        >
+        <RadioButton android:id="@+id/radio1"
+            android:text="Transporting"/>
+        <RadioButton android:id="@+id/radio2"
+            android:text="Docked"/>
+        <RadioButton android:id="@+id/radio3"
+            android:text="Stopped"/>
+        <RadioButton android:id="@+id/radio4"
+            android:text="Show All"/>
+    </RadioGroup>
+    <Button android:id="@+id/Ok"
+        android:text="Ok"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="20dp"/>
+
+</LinearLayout>

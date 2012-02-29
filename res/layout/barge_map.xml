@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <com.google.android.maps.MapView
+        android:id="@+id/map2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:apiKey="0_z4IHjB6EnXDOy4pa7PzIfXHNRkXf-iigoVmhg"
+        android:clickable="true"
+        android:layout_weight="1" >
+    </com.google.android.maps.MapView>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:background="@drawable/fabric" 
+        >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Barge Name" android:layout_centerHorizontal="true"
+                android:textSize="35px"/>
+            <TextView
+                android:id="@+id/head1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/title"
+                android:layout_marginTop="15px"
+                android:text="Status: "/>
+            <TextView
+                android:id="@+id/text1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/title"
+                android:layout_toRightOf="@+id/head1"
+                android:layout_marginLeft="15px"
+                android:layout_marginTop="15px"/>
+            <TextView
+                android:id="@+id/head2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/head1"
+                android:text="Source: "
+                android:layout_marginTop="10px"/>
+            <TextView
+                android:id="@+id/text2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10px"
+                android:layout_below="@+id/text1"
+                android:layout_toRightOf="@+id/head2"
+                android:layout_marginLeft="15px"/>
+			<TextView
+                android:id="@+id/head3"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="10px"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/head2"
+                android:text="Destination: "/>
+			<TextView
+                android:id="@+id/text3"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="10px"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text2"
+                android:layout_toRightOf="@+id/head3"
+                android:layout_marginLeft="15px"/>
+			<TextView
+                android:id="@+id/head4"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="10px"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/head3"
+                android:text="Last Loaded on: "/>
+			<TextView
+                android:id="@+id/text4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text3"
+                android:layout_toRightOf="@+id/head4"
+                android:layout_marginTop="10px"
+                android:layout_marginLeft="15px"
+                android:text="(Time)"/>
+			<TextView
+                android:id="@+id/head5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10px"
+                android:layout_below="@+id/head4"
+                android:text="Last Unloaded on: "/>
+			<TextView
+                android:id="@+id/text5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text4"
+                android:layout_toRightOf="@+id/head5"
+                android:layout_marginTop="10px"
+                android:layout_marginLeft="15px"
+                android:text="(Time)"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>

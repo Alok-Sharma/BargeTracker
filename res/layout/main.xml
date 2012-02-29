@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" 
+    android:background="@drawable/fabric"
+    >
+<TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/tv"
+        android:text="Barge Name" 
+        android:layout_marginBottom="15px"
+        android:textSize="17px"/>
+<TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/tv3"
+        android:text="Status" 
+        android:layout_marginBottom="15px"
+        android:textSize="17px"/>
+<TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:id="@+id/tv3"
+        android:text="Status Since" 
+        android:textSize="17px"/>
+        
+<TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv4"
+        android:text="(HH:MM)" 
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10sp"
+        android:layout_below="@+id/tv3"
+        android:textSize="14px"/>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/tv" 
+        android:textSize="25px"
+        android:cacheColorHint="#00000000"
+        android:descendantFocusability="beforeDescendants"/>
+    
+
+</RelativeLayout>

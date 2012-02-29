@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<item android:id="@+id/mapview" 
+		android:title="Map View"
+		android:icon="@drawable/mapicon" />
+
+	<item android:id="@+id/helpcolor"
+		android:title="Help"
+		android:icon="@drawable/help" />
+
+	<item android:id="@+id/exit"
+		android:title="Exit" 
+		android:icon="@drawable/exiticon" />
+
+</menu>
