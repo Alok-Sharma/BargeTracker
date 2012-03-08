@@ -6,9 +6,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.json.JSONException;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -40,7 +38,6 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
@@ -48,7 +45,6 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
-
 
 /*
  * 	BUG ALERT: WHEN THERE IS NO CONNECTION TO SERVER AND NO BARGE ARE DISPLAYED, THEN IF YOU GO TO THE FILTER OPTION AND
@@ -83,7 +79,8 @@ public class FullMap extends MapActivity{
 	MyOverlays mo;
 	RadioButton radio1,radio2, radio3, radio4;
 	TextView filtertext;
-    /** Called when the activity is first created. */
+    
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,11 +88,10 @@ public class FullMap extends MapActivity{
         map=(MapView)findViewById(R.id.map);
         map.setBuiltInZoomControls(true);
         
-        Log.w("C2DM", "start registration process");
-		Intent intent = new Intent("com.google.android.c2dm.intent.REGISTER");
-		intent.putExtra("app",
-				PendingIntent.getBroadcast(this, 0, new Intent(), 0));
-		// Sender currently not used
+        handler = new Handler();
+        
+		Intent intent = new Intent("com.google.android.c2dm.intent.REGISTER"); // Intent for C2DM sending
+		intent.putExtra("app",PendingIntent.getBroadcast(this, 0, new Intent(), 0));
 		intent.putExtra("sender", "sdpdbargeproject@gmail.com");
 		startService(intent);
 		
@@ -103,136 +99,62 @@ public class FullMap extends MapActivity{
 		.getDefaultSharedPreferences(this);
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			String message = extras.getString("payload");
+			String message = extras.getString("payload"); // The C2DM message.
 			if (message != null && message.length() > 0) {
-				//Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 				Log.d("C2dM from server", message);
 				}
 		}
-		//String string = prefsc2dm.getString(AUTH, "A barge has stopped");
-		//Toast.makeText(this, string, Toast.LENGTH_LONG).show();
-		//Log.d("C2DM RegId", string);
-		
+        
 		
         
-        handler = new Handler();
-        mpref=FullMap.this.getSharedPreferences("mypref", Context.MODE_WORLD_WRITEABLE);
+		mpref=FullMap.this.getSharedPreferences("mypref", Context.MODE_WORLD_WRITEABLE); 
         bargedata=FullMap.this.getSharedPreferences("bargedata", Context.MODE_WORLD_WRITEABLE);
         edit=mpref.edit();
-        edit.putString("filter", "Show All");
+        edit.putString("filter", "Show All"); // SharedPref storing state of the 'filter' option.
+        edit.putBoolean("offline", false);
+    	edit.commit();
         bargedataedit=bargedata.edit();
-        if(APP_BEGIN==1){        
-        	edit.putBoolean("offline", false);
-        	Log.d("!!!!!!", "put offline=false now");
-        	edit.commit();
-        	APP_BEGIN+=1;
-        }
+        
+//        if(APP_BEGIN==1){        
+//        	edit.putBoolean("offline", false);
+//        	edit.commit();
+//        	APP_BEGIN+=1;
+//        }
         
         toBargeMap=new Intent(FullMap.this,BargeMap.class);
+        
         filtertext=(TextView)findViewById(R.id.filtertext);
+        
         MapController mapcontr=map.getController();
         mapcontr.setZoom(12);
         mapcontr.setCenter(new GeoPoint(28632888, 77119900));
-//        mo=new MyOverlays(blank_marker);
-        viewOnly=new Dialog(FullMap.this);
+        
+        viewOnly=new Dialog(FullMap.this);// Dialog for the 'Filter' option
 		viewOnly.setContentView(R.layout.viewonly);
 		viewOnly.setTitle("View Only:");
-		helpcolor=new Dialog(FullMap.this);
+		
+		helpcolor=new Dialog(FullMap.this);	// Dialog for the 'Help' option
     	helpcolor.setContentView(R.layout.helpcolor);
     	helpcolor.setTitle("Help");
-    }
-    
-    int LOST_CONN=0;
-    int DIALOG_UP=0;
-    public void checkNet(){
-    		Log.d("!!!!!!!", "inside fullmaps checknet");
-    		myTelephony=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-    		
-    		callStateListener=new PhoneStateListener(){
-    			@Override
-    			public void onDataConnectionStateChanged(int state){
-    				switch(state){
-    				case TelephonyManager.DATA_DISCONNECTED:
-    					LOST_CONN=1;
-    					if(mpref.getBoolean("offline", false)==false){
-    						Log.d("******111", "disconn"+mpref.getBoolean("offline", true));
-    						DIALOG_UP=1;
-    						alertDialog=new AlertDialog.Builder(FullMap.this).create();
-    						alertDialog.setTitle("Network Error");
-    						alertDialog.setMessage("There is no network available");
-
-    						alertDialog.setButton("Change Network Settings", new DialogInterface.OnClickListener() {
-
-    							@Override
-    							public void onClick(DialogInterface dialog, int which) {
-
-    								Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
-    								ComponentName cName=new ComponentName("com.android.phone","com.android.phone.Settings");
-    								DIALOG_UP=0;
-    								intent.setComponent(cName);
-    								startActivity(intent);
-    							}
-    						});
-
-    						alertDialog.setButton2("Work Offline", new DialogInterface.OnClickListener() {
-
-    							@Override
-    							public void onClick(DialogInterface dialog, int which) {
-    								Log.d("!!!!!!", "inside fullmaps click");
-    								edit=mpref.edit();
-    								edit.putBoolean("offline", true);
-    								Log.d("!!!!!!", "made offline true");
-    								edit.commit();
-    								DIALOG_UP=0;
-    							}
-    						});
-    						alertDialog.show();
-    					}
-    					else{
-    						Log.d("111111", "still no net and already in offline mode");
-    					}
-    					break;
-    				case TelephonyManager.DATA_CONNECTED:
-    					Log.d("******111", "conn");
-    					if(DIALOG_UP==1){
-    						alertDialog.hide();
-    					}
-    					if(LOST_CONN==1 ){
-    						Toast.makeText(FullMap.this, "Successfully connected to network", Toast.LENGTH_SHORT).show();
-    						LOST_CONN=0;
-    					}
-    					edit=mpref.edit();
-    					edit.putBoolean("offline", false);
-    					Log.d("1111111", "made offline falsse");
-    					edit.commit();
-    					break;
-    				case TelephonyManager.DATA_SUSPENDED:
-    					Log.d("********111", "idle");
-    					break;
-    				}
-    			}
-    		};
-    		myTelephony.listen(callStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
-    		
     }
     
     
     @Override
     protected void onPause(){
     	super.onPause();
-    	myTelephony.listen(callStateListener, callStateListener.LISTEN_NONE);
+    	Connectivity.stopListeningToConn(FullMap.this); // Stop listening to the connection when paused.
     	timer.cancel();
     	Log.d("11111111111", "full map is NOT listening");
     }
     @Override
     protected void onResume(){
     	super.onResume();
-//    	myTelephony.listen(callStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
-    	checkNet();
-    	Log.d("1111111", "full map is listening again");
-    	LOST_CONN=0;
+    	Connectivity.checkNet(FullMap.this); // Start checking the connection when resumed.
+    	Log.d("FINAL", "fullmap started checknet");
+//    	Connectivity.LOST_CONN=0;
+//    	Log.d("FINAL", "FullMap set Lost_conn=0");
+
     	timer=new Timer();
-    	
     	timer.scheduleAtFixedRate(new TimerTask(){
 
 			@Override
@@ -249,7 +171,6 @@ public class FullMap extends MapActivity{
 					if(!bargeOverlay.isEmpty()){
 						mo.removeAll();
 					}
-//					final MyOverlays fo=new MyOverlays(blank_marker);
 					handler.post(new Runnable()
 					{
 						public void run()
@@ -262,22 +183,17 @@ public class FullMap extends MapActivity{
 								BNameList.add(fp.namelist.get(x));
 								statList.add(fp.statlist.get(x));
 								lonList.add(fp.lonlist.get(x));latList.add(fp.latlist.get(x));
-//								bargeOverlay.add(new OverlayItem(new GeoPoint(latList.get(x),lonList.get(x)),BNameList.get(x),statList.get(x)));
 								mo.addOverlay(new OverlayItem(new GeoPoint(latList.get(x),lonList.get(x)),BNameList.get(x),statList.get(x)));
 						    }
 						    map.getOverlays().clear();
 						    String filter=mpref.getString("filter", "Show All");
 						    if(filter.equals("Stopped")){
-//						    	showOnly("Stopped");
 						    	mo.removeAllOverlay("Transporting");mo.removeAllOverlay("Docked");
 						    }else if(filter.equals("Transporting")){
-//						    	showOnly("Transporting");
 						    	mo.removeAllOverlay("Docked");mo.removeAllOverlay("Stopped");
 						    }else if(filter.equals("Docked")){
-//						    	showOnly("Docked");
 						    	mo.removeAllOverlay("Transporting");mo.removeAllOverlay("Stopped");
 						    }else if(filter.equals("Show All")){
-//						    	showOnly("Show All");
 							    map.getOverlays().add(mo);
 							    map.postInvalidate();
 						    }else{
@@ -431,7 +347,6 @@ public class FullMap extends MapActivity{
 
 	@Override
 	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	
@@ -507,20 +422,6 @@ public class FullMap extends MapActivity{
 			}
 			setLastFocusedIndex(-1);
 		}
-//		@Override 
-//        public boolean onTap(GeoPoint point, MapView mapView) {
-//			setLastFocusedIndex(-1);
-//			
-//			toBargeMap.putExtra("name", bargeOverlay.get(index).getTitle());
-//			toBargeMap.putExtra("status", bargeOverlay.get(index).getSnippet());
-//			toBargeMap.putExtra("lat", bargeOverlay.get(index).getPoint().getLatitudeE6());
-//			toBargeMap.putExtra("lon", bargeOverlay.get(index).getPoint().getLongitudeE6());
-//			toBargeMap.putExtra("size", bargeOverlay.size());
-//			Log.d("*****send", bargeOverlay.get(0).getTitle());
-//			
-//			startActivity(toBargeMap);
-//			return true;
-//		}
 		@Override
 		public boolean onTap(int index){
 			refillOverlays(); 
@@ -583,10 +484,6 @@ public class FullMap extends MapActivity{
 						myScreenCoords.y - 30, strokePaint);
 				canvas.drawText(bargeOverlay.get(i).getTitle(),myScreenCoords.x+8,
 						myScreenCoords.y - 30, blackText);
-
-//				map.getProjection().toPixels(point, myScreenCoords2);	//below text
-//				canvas.drawText(bargeOverlay.get(i).getSnippet(),myScreenCoords.x+8 , myScreenCoords.y+40, strokePaint);
-//				canvas.drawText(bargeOverlay.get(i).getSnippet(),myScreenCoords.x+8 , myScreenCoords.y+40, blackText);
 			}
 		}
 	}
