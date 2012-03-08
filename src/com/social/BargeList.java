@@ -63,7 +63,6 @@ public class BargeList extends ListActivity {
         bargeTimes = new ArrayList<String>();
         latList=new ArrayList<Integer>();lonList=new ArrayList<Integer>();
         toBargeMap=new Intent(BargeList.this,BargeMap.class);
-        checkNet();
         bargeList=getListView();
         bargeList.setClickable(true);
     	bargeList.setItemsCanFocus(false);
@@ -80,83 +79,23 @@ public class BargeList extends ListActivity {
 			}
     		
     	});
+    	
     }
     
-    int LOST_CONN=0;
-    int DIALOG_UP=0;
-    public void checkNet(){
-    	myTelephony=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        callStateListener=new PhoneStateListener(){
-        	@Override
-        	public void onDataConnectionStateChanged(int state){
-        		switch(state){
-        		case TelephonyManager.DATA_DISCONNECTED:
-        			Log.d("33333333", "disconn");
-        			LOST_CONN=1;
-        			if(mpref.getBoolean("offline", false)==false){
-        				alertDialog=new AlertDialog.Builder(BargeList.this).create();
-        				alertDialog.setTitle("Network Error");
-        				alertDialog.setMessage("There is no network available");
-        				alertDialog.setButton("Change Network Settings", new DialogInterface.OnClickListener() {
 
-        					@Override
-        					public void onClick(DialogInterface dialog, int which) {
-        						Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
-        						ComponentName cName=new ComponentName("com.android.phone","com.android.phone.Settings");
-        						intent.setComponent(cName);
-        						startActivity(intent);
-        						DIALOG_UP=0;
-        					}
-        				});
-
-        				alertDialog.setButton2("Work Offline", new DialogInterface.OnClickListener() {
-
-        					@Override
-        					public void onClick(DialogInterface dialog, int which) {
-        						edit=mpref.edit();
-        						edit.putBoolean("offline", true);
-        						Log.d("33333333", "made offline true "+mpref.getBoolean("offline", false));
-        						edit.commit();
-        						DIALOG_UP=0;
-        					}
-        				});
-        				alertDialog.show();
-        			}
-        			break;
-        		case TelephonyManager.DATA_CONNECTED:
-        			Log.d("33333333", "conn");
-        			if(DIALOG_UP==1){
-						alertDialog.hide();
-					}
-					if(LOST_CONN==1){
-						Toast.makeText(BargeList.this, "Successfully connected to network", Toast.LENGTH_SHORT).show();
-						LOST_CONN=0;
-					}
-					edit=mpref.edit();
-					edit.putBoolean("offline", false);
-					edit.commit();
-        			break;
-        		case TelephonyManager.DATA_SUSPENDED:
-        			Log.d("3333333333", "idle");
-        			break;
-        		}
-        	}
-        };
-        myTelephony.listen(callStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
-    }
-    @Override
+    
+	@Override
     protected void onPause(){
     	super.onPause();
-    	myTelephony.listen(callStateListener, callStateListener.LISTEN_NONE);
-    	Log.d("33333333", "list has stopped listening");
+    	Connectivity.stopListeningToConn(BargeList.this);
     	timer.cancel();
     }
     @Override
     protected void onResume(){
     	super.onResume();
-    	myTelephony.listen(callStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+    	Connectivity.checkNet(BargeList.this);
     	Log.d("333333333", "list is listening again");
-    	LOST_CONN=0;	//doubtful
+    	Connectivity.LOST_CONN=0;	//doubtful
     	
     	
     	timer=new Timer();
@@ -183,7 +122,6 @@ public class BargeList extends ListActivity {
 						@Override
 						public void run() {
 							Log.d("3333333", "inside the runnable");
-//							myadapter.notifyDataSetChanged();
 							  	bargeList = getListView();
 							  	bargeList.requestFocus();
 							  	
