@@ -98,98 +98,21 @@ public class BargeMap extends MapActivity {
 				}
 	    		
 	    	});
-
-        	checkNet();
-	        
 	 }
-	 int LOST_CONN=0;
-	 int DIALOG_UP=0;
-	 public void checkNet(){
-		 Log.d("&&&&&&", "inside bargemaps checknet");
-		 myTelephony=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-		 callStateListener=new PhoneStateListener(){
-			 @Override
-			 public void onDataConnectionStateChanged(int state){
-				 switch(state){
-				 case TelephonyManager.DATA_DISCONNECTED:
-					 Log.d("******222", "disconn");
-					 LOST_CONN=1;
-					 if(mpref.getBoolean("offline", false)==false){
-						 DIALOG_UP=1;
-						 alertDialog=new AlertDialog.Builder(BargeMap.this).create();
-						 alertDialog.setTitle("Network Error");
-						 alertDialog.setMessage("There is no network available");
-						 alertDialog.setButton("Change Network Settings", new DialogInterface.OnClickListener() {
-
-							 @Override
-							 public void onClick(DialogInterface dialog, int which) {
-								 Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
-								 ComponentName cName=new ComponentName("com.android.phone","com.android.phone.Settings");
-								 intent.setComponent(cName);
-								 startActivity(intent);
-								 DIALOG_UP=0;
-							 }
-						 });
-
-						 alertDialog.setButton2("Work Offline", new DialogInterface.OnClickListener() {
-
-							 @Override
-							 public void onClick(DialogInterface dialog, int which) {
-								 Log.d("!!!!!!", "inside bargemaps click");
-								 edit=mpref.edit();
-								 edit.putBoolean("offline", true);
-								 edit.commit();
-//								 FullMap fm=new FullMap();
-//								 fm.writeForBargeMap(true);
-								 Log.d("22222222", "made offline true "+mpref.getBoolean("offline", false));
-								 DIALOG_UP=0;
-							 }
-						 });
-						 alertDialog.show();
-					 }
-					 else{
-						 Log.d("222222", "still no net and already in offline mode");
-					 }
-					 break;
-				 case TelephonyManager.DATA_CONNECTED:
-					 Log.d("******222", "conn");
-					 if(DIALOG_UP==1){
-						 alertDialog.hide();
-					 }
-					 if(LOST_CONN==1){
-						 Toast.makeText(BargeMap.this, "Successfully connected to network", Toast.LENGTH_SHORT).show();
-						 LOST_CONN=0;
-					 }
-					 edit=mpref.edit();
-					 edit.putBoolean("offline", false);
-					 Log.d("222222222", "made offline false");
-					 edit.commit();
-					 break;
-				 case TelephonyManager.DATA_SUSPENDED:
-					 Log.d("********222", "idle");
-					 break;
-				 }
-			 }
-		 };
-		 myTelephony.listen(callStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
-	 }
+	 
 	 @Override
 	    protected void onPause(){
 	    	super.onPause();
-	    	myTelephony.listen(callStateListener, callStateListener.LISTEN_NONE);
-	    	Log.d("2222222222", "Bargemap is not listening anymore");
+	    	Connectivity.stopListeningToConn(BargeMap.this);
 	    	
 	    }
 	    @Override
 	    protected void onResume(){
 	    	super.onResume();
-	    	myTelephony.listen(callStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
-	    	Log.d("222222222222", "bargemap is listening again");
-	    	LOST_CONN=0;	//doubtfull;
-	    	
-//	    	if(mpref.getBoolean("offline", false)==false){
-//	        	checkNet();
-//	        }
+	    	Connectivity.checkNet(BargeMap.this);
+	    	Log.d("FINAL", "bargemap started checknet");
+//	    	Connectivity.LOST_CONN=0;	//doubtfull;
+//	    	Log.d("FINAL", "bargemap set lost_conn=0");
 	    }
 	 
 	 @Override
@@ -224,7 +147,6 @@ public class BargeMap extends MapActivity {
 
 	@Override
 	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	
@@ -293,10 +215,6 @@ public class BargeMap extends MapActivity {
 						myScreenCoords.y - 30, strokePaint);
 				canvas.drawText(singleOverlay.get(i).getTitle(),myScreenCoords.x+8,
 						myScreenCoords.y - 30, blackText);
-
-//				map.getProjection().toPixels(point, myScreenCoords2);	//below text
-//				canvas.drawText(singleOverlay.get(i).getSnippet(),myScreenCoords.x+8 , myScreenCoords.y+40, strokePaint);
-//				canvas.drawText(singleOverlay.get(i).getSnippet(),myScreenCoords.x+8 , myScreenCoords.y+40, blackText);
 			}
 		}
 		
