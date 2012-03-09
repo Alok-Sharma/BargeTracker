@@ -11,5 +11,3 @@ more than a specified time, then the list highlights the entry for that barge.
 * The app basically fetches coordinates alongwith other relevant detail pertaining to each Barge from a server. The server hosts this information as a *JSON file*.
 * After fetching and parsing the JSON, the app plots this onto a 'MapView' alongwith their status colors.
 * A major part of this project was to implement *Cloud to Device Messaging (C2DM)* for user notifications. The C2DM service was used to notify the user if any barge hasnt had its status changed for more than the specified time, or if the user desires to recieve notifications for every status change for particular barges.
-
-I realize the code in its current form looks quite ugly and complex. This was, for most part due to a hard deadline alongwith constant, last-minute change requests that ultimately led to the code turning what it is. We definitely intend to improve on it in the near future. 
