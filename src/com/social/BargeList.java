@@ -5,21 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.json.JSONException;
-
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -33,7 +26,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class BargeList extends ListActivity {
 	SharedPreferences mpref;
@@ -49,38 +41,37 @@ public class BargeList extends ListActivity {
 	ArrayList<String> bargeNames;
 	ArrayList<String> bargeStatus;
 	ArrayList<String> bargeTimes;
-    ArrayList<Integer> latList,lonList;
-    Dialog helpcolor;
+	ArrayList<Integer> latList,lonList;
+	Dialog helpcolor;
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        mpref=this.getSharedPreferences("mypref", 0);
-//        Bundle extras=getIntent().getExtras();
-        handler=new Handler();
-        bargeStatus = new ArrayList<String>();
-        bargeNames = new ArrayList<String>();
-        bargeTimes = new ArrayList<String>();
-        latList=new ArrayList<Integer>();lonList=new ArrayList<Integer>();
-        toBargeMap=new Intent(BargeList.this,BargeMap.class);
-        bargeList=getListView();
-        bargeList.setClickable(true);
-    	bargeList.setItemsCanFocus(false);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+		mpref=this.getSharedPreferences("mypref", 0);
+		handler=new Handler();
+		bargeStatus = new ArrayList<String>();
+		bargeNames = new ArrayList<String>();
+		bargeTimes = new ArrayList<String>();
+		latList=new ArrayList<Integer>();lonList=new ArrayList<Integer>();
+		toBargeMap=new Intent(BargeList.this,BargeMap.class);
+		bargeList=getListView();
+		bargeList.setClickable(true);
+		bargeList.setItemsCanFocus(false);
     	
-    	helpcolor=new Dialog(BargeList.this);
-    	helpcolor.setContentView(R.layout.helpcolor);
-    	helpcolor.setTitle("Help");
-    	Button helpok=(Button)helpcolor.findViewById(R.id.helpok);
-    	helpok.setOnClickListener(new OnClickListener(){
+		helpcolor=new Dialog(BargeList.this);
+		helpcolor.setContentView(R.layout.helpcolor);
+		helpcolor.setTitle("Help");
+		Button helpok=(Button)helpcolor.findViewById(R.id.helpok);
+		helpok.setOnClickListener(new OnClickListener(){
 
 			@Override
 			public void onClick(View arg0) {
 				helpcolor.dismiss();
 			}
-    		
-    	});
-    	
-    }
+
+		});
+
+	}
     
 
     
@@ -95,15 +86,14 @@ public class BargeList extends ListActivity {
     	super.onResume();
     	Connectivity.checkNet(BargeList.this);
     	Log.d("333333333", "list is listening again");
-    	Connectivity.LOST_CONN=0;	//doubtful
+    	Connectivity.LOST_CONN=0;	//doubtful about this
     	
     	
-    	timer=new Timer();
+    	timer=new Timer(); // This can be made into a separate class.
     	timer.scheduleAtFixedRate(new TimerTask(){
 
     		@Override
     		public void run() {
-    			Log.d("333333", "refreshing");
     			FetchParse fp=new FetchParse();
     			try {
     				fp.fetch();
@@ -137,24 +127,18 @@ public class BargeList extends ListActivity {
 						 				toBargeMap.putExtra("lon", lonList.get(position));
 						 				startActivity(toBargeMap);
 						 			}
-						 			
 						 		});
 						    	myadapter= new BargeArrayAdapter(BargeList.this,getModel(1),getModel(2),getModel(3));
 								setListAdapter(myadapter);
 						}
-    					
     				});
-    				
-    				
     			} catch (IOException e) {
     				e.printStackTrace();
     			} catch (JSONException e) {
     				e.printStackTrace();
     			}
-    			
     		}
-    		
-    	}, 1000, 10000);
+    	}, 1000, 10000); //refresh every 10 seconds
     	
     	
     }

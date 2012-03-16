@@ -1,13 +1,11 @@
 package com.social;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BargeItemView extends LinearLayout {
@@ -19,10 +17,10 @@ public class BargeItemView extends LinearLayout {
 			int ind) {
 		super(context);
 		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.list, this, true);
 
-		// initilize eements of the row
+		// Initilize eements of the row
 		bargeNameView = (TextView) findViewById(R.id.bargetextView1);
 		bargeTimeView = (TextView) findViewById(R.id.statustextView1);
 		bargeStatusImage = (ImageView) findViewById(R.id.statusimageView1);
@@ -51,7 +49,6 @@ public class BargeItemView extends LinearLayout {
 			Drawable bgred=getResources().getDrawable(R.drawable.back_red);
 			bgred.setAlpha(100);
 			Log.d("color", "colour is set");
-//			this.setBackgroundResource(R.drawable.back_red);
 			this.setBackgroundDrawable(bgred);
 		}
 	}

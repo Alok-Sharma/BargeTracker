@@ -10,9 +10,7 @@ import org.json.JSONException;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -25,7 +23,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -37,7 +34,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
@@ -274,17 +270,17 @@ public class FullMap extends MapActivity{
      * Method will show only particualr status' Barge. 
      */
     public void showOnly(String filter){
-	    map.getOverlays().add(mo);
-	    map.postInvalidate();
+    	map.getOverlays().add(mo);
+    	map.postInvalidate();
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
     	MenuInflater inflater=getMenuInflater();
     	inflater.inflate(R.menu.options, menu);
     	return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
     	switch(item.getItemId()){
@@ -292,10 +288,10 @@ public class FullMap extends MapActivity{
     		Intent i= new Intent(FullMap.this,BargeList.class );
     		i.putExtra("size", bargeOverlay.size());
     		for(int j=0;j<bargeOverlay.size();j++){
-        		i.putExtra("name"+j, bargeOverlay.get(j).getTitle());
-        		i.putExtra("status"+j, bargeOverlay.get(j).getSnippet());
-        		i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        	}
+    			i.putExtra("name"+j, bargeOverlay.get(j).getTitle());
+    			i.putExtra("status"+j, bargeOverlay.get(j).getSnippet());
+    			i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+    		}
     		startActivity(i);
     		return true;
 		case R.id.refine:
@@ -318,7 +314,6 @@ public class FullMap extends MapActivity{
 			helpcolor.show();
 			break;
     	case R.id.exit:
-    		Log.d("@@@@@@", "exit");
     		moveTaskToBack(true);
     		break;
     	default:
@@ -344,7 +339,7 @@ public class FullMap extends MapActivity{
 			setLastFocusedIndex(-1);
 			populate();
 		}
-		
+
 		@Override
 		protected OverlayItem createItem(int i) {
 			return bargeOverlay.get(i);
@@ -355,7 +350,7 @@ public class FullMap extends MapActivity{
 			Log.d("1111111", "size:"+bargeOverlay.size());
 			return bargeOverlay.size();
 		}
-		
+
 		/*
 		 * Given an OverlayItem as argument, this adds it to 
 		 * the arrayList of Overlays and re-populates the map.
@@ -366,7 +361,7 @@ public class FullMap extends MapActivity{
 			setLastFocusedIndex(-1);
 			populate();
 		}
-		
+
 		/*
 		 * String s: Either of "Transporting", "Docked" or "Stopped"
 		 * The method removes all overlays that have their status as the argument provided.
@@ -384,7 +379,7 @@ public class FullMap extends MapActivity{
 			}
 			setLastFocusedIndex(-1);
 		}
-		
+
 		/*
 		 * Remove all the overlays from the arraylist.
 		 */
@@ -446,7 +441,7 @@ public class FullMap extends MapActivity{
 			Bitmap greenflag=BitmapFactory.decodeResource(getResources(), R.drawable.green);
 			Bitmap redflag=BitmapFactory.decodeResource(getResources(), R.drawable.red);
 			Bitmap yellowflag=BitmapFactory.decodeResource(getResources(), R.drawable.yellow);
-			
+
 			for(int i=0;i<bargeOverlay.size();i++){
 				GeoPoint someplace=bargeOverlay.get(i).getPoint();		
 				map.getProjection().toPixels(someplace, myScreenCoords1);

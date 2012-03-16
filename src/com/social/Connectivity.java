@@ -17,17 +17,18 @@ public class Connectivity {
 	static PhoneStateListener callStateListener;
 	static AlertDialog alertDialog;
 	static SharedPreferences.Editor edit;
-	
-	
+
+
 	static int LOST_CONN=0;	//initially network error dialog isnt up and connection hasnt been lost.
-    static int DIALOG_UP=0;
+	static int DIALOG_UP=0;
 
 	public static void checkNet(final Context context){
 		Log.d("FINAL", "Inside checknet with initial lost_conn=0");
 		final SharedPreferences mpref=context.getSharedPreferences("mypref", Context.MODE_WORLD_WRITEABLE);
 		edit=mpref.edit();
 		myTelephony=(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-		callStateListener=new PhoneStateListener(){
+
+		callStateListener=new PhoneStateListener(){ // Listen for any connectivity changes.
 			@Override
 			public void onDataConnectionStateChanged(int state){
 				switch(state){
@@ -87,11 +88,11 @@ public class Connectivity {
 		};
 		myTelephony.listen(callStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 	}
-	
+
 	public void listenToConn(Context context){
-		
+		// not needed. Checknet automatically handles that.
 	}
-	
+
 	public static void stopListeningToConn(Context context){
 		myTelephony=(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
 		myTelephony.listen(callStateListener, callStateListener.LISTEN_NONE);

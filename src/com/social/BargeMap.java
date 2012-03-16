@@ -1,17 +1,9 @@
 package com.social;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.json.JSONException;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -21,10 +13,8 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,8 +22,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
@@ -55,105 +43,102 @@ public class BargeMap extends MapActivity {
 	PhoneStateListener callStateListener;
 	AlertDialog alertDialog;
 	Dialog helpcolor;
-	 @Override
-	    public void onCreate(Bundle savedInstanceState) {
-		 super.onCreate(savedInstanceState);
-	        setContentView(R.layout.barge_map);
-	        map=(MapView)findViewById(R.id.map2);
-	        map.setBuiltInZoomControls(true);
-	        MapController mapcontr=map.getController();
-	        mapcontr.setZoom(12);
-	        
-	        mpref=this.getSharedPreferences("mypref", Context.MODE_WORLD_WRITEABLE);
-	        
-	        extras=getIntent().getExtras();
-	        BName=extras.getString("name");
-	        status=extras.getString("status");
-	        int lat=extras.getInt("lat");
-	        int lon=extras.getInt("lon");
-	        
-	        point=new GeoPoint(lat,lon);
-	        mapcontr.setCenter(point);
-	        
-	        Drawable blank_marker = getResources().getDrawable(R.drawable.blank_space);
-	        me=new MyLocationOverlay(this,map);
-	        map.getOverlays().add(me);
-	        map.getOverlays().add(new singleOverlay(blank_marker));
-	        
-	        TextView title=(TextView)findViewById(R.id.title);
-	        TextView text1=(TextView)findViewById(R.id.text1);
-	        
-	        title.setText(BName+" Details");
-	        text1.setText(status);
-	        
-	        helpcolor=new Dialog(BargeMap.this);
-	    	helpcolor.setContentView(R.layout.helpcolor);
-	    	helpcolor.setTitle("Help");
-	    	Button helpok=(Button)helpcolor.findViewById(R.id.helpok);
-	    	helpok.setOnClickListener(new OnClickListener(){
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.barge_map);
+		map=(MapView)findViewById(R.id.map2);
+		map.setBuiltInZoomControls(true);
+		MapController mapcontr=map.getController();
+		mapcontr.setZoom(12);
 
-				@Override
-				public void onClick(View arg0) {
-					helpcolor.dismiss();
-				}
-	    		
-	    	});
-	 }
+		mpref=this.getSharedPreferences("mypref", Context.MODE_WORLD_WRITEABLE);
+
+		extras=getIntent().getExtras();
+		BName=extras.getString("name");
+		status=extras.getString("status");
+		int lat=extras.getInt("lat");
+		int lon=extras.getInt("lon");
+
+		point=new GeoPoint(lat,lon);
+		mapcontr.setCenter(point);
+
+		Drawable blank_marker = getResources().getDrawable(R.drawable.blank_space);
+		me=new MyLocationOverlay(this,map);
+		map.getOverlays().add(me);
+		map.getOverlays().add(new singleOverlay(blank_marker));
+
+		TextView title=(TextView)findViewById(R.id.title);
+		TextView text1=(TextView)findViewById(R.id.text1);
+
+		title.setText(BName+" Details");
+		text1.setText(status);
+
+		helpcolor=new Dialog(BargeMap.this);
+		helpcolor.setContentView(R.layout.helpcolor);
+		helpcolor.setTitle("Help");
+		Button helpok=(Button)helpcolor.findViewById(R.id.helpok);
+		helpok.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				helpcolor.dismiss();
+			}
+
+		});
+	}
 	 
-	 @Override
-	    protected void onPause(){
-	    	super.onPause();
-	    	Connectivity.stopListeningToConn(BargeMap.this);
-	    	
-	    }
-	    @Override
-	    protected void onResume(){
-	    	super.onResume();
-	    	Connectivity.checkNet(BargeMap.this);
-	    	Log.d("FINAL", "bargemap started checknet");
-//	    	Connectivity.LOST_CONN=0;	//doubtfull;
-//	    	Log.d("FINAL", "bargemap set lost_conn=0");
-	    }
+	@Override
+	protected void onPause(){
+		super.onPause();
+		Connectivity.stopListeningToConn(BargeMap.this);
+
+	}
+	@Override
+	protected void onResume(){
+		super.onResume();
+		Connectivity.checkNet(BargeMap.this);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu){
+		MenuInflater inflater=getMenuInflater();
+		inflater.inflate(R.menu.options2, menu);
+		return true;
+	}
 	 
-	 @Override
-	    public boolean onCreateOptionsMenu(Menu menu){
-	    	MenuInflater inflater=getMenuInflater();
-	    	inflater.inflate(R.menu.options2, menu);
-	    	return true;
-	 }
-	 
-	 @Override
-	    public boolean onOptionsItemSelected(MenuItem item){
-	    	switch(item.getItemId()){
-	    	case R.id.mapview:
-	    		Intent i= new Intent(BargeMap.this,FullMap.class );
-	    		i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-	    		startActivity(i);
-	    		return true;
-	    	case R.id.listview:
-	    		Intent i1= new Intent(BargeMap.this,BargeList.class );
-	    		i1.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-	    		startActivity(i1);
-	    		return true;
-	    	case R.id.helpcolor:
-	        	helpcolor.show();
-	        	return true;
-	    	case R.id.exit:
-	    		moveTaskToBack(true);
-	    	default:
-	            return super.onOptionsItemSelected(item);
-	    	}
-	    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch(item.getItemId()){
+		case R.id.mapview:
+			Intent i= new Intent(BargeMap.this,FullMap.class );
+			i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+			startActivity(i);
+			return true;
+		case R.id.listview:
+			Intent i1= new Intent(BargeMap.this,BargeList.class );
+			i1.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+			startActivity(i1);
+			return true;
+		case R.id.helpcolor:
+			helpcolor.show();
+			return true;
+		case R.id.exit:
+			moveTaskToBack(true);
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
-	
+
 	private ArrayList<OverlayItem> singleOverlay=new ArrayList<OverlayItem>();
 	
 	private class singleOverlay extends ItemizedOverlay<OverlayItem>{
-		
+
 		private Drawable blank_marker=null;
 		public singleOverlay(Drawable blank_marker) {
 			super(blank_marker);

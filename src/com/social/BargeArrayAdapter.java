@@ -1,15 +1,11 @@
 package com.social;
 
 import java.util.List;
-
 import android.app.Activity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 public class BargeArrayAdapter extends ArrayAdapter<Model> {
 	private final Activity context;
@@ -24,7 +20,7 @@ public class BargeArrayAdapter extends ArrayAdapter<Model> {
 		this.context = context;
 		this.bargeStatus = statusList;
 		this.bargeTimes = timeList;
-		
+
 	}
 
 	@Override
@@ -46,8 +42,7 @@ public class BargeArrayAdapter extends ArrayAdapter<Model> {
 		String name = bargeNames.get(position).getBargeName();
 		String status = bargeStatus.get(position).getBargeStatus();
 		String time = bargeTimes.get(position).getBargeTime();
-		
-		// Log.d("55555555", status+ ind);
+
 		if (convertView == null) {
 			Log.d("nullcheck",position+" is the position null");
 			BargeItemView temp = new BargeItemView(context, name, time, ind);

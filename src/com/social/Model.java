@@ -6,21 +6,11 @@ public class Model {
 	private String bargeItemStatus;
 	private String bargeItemTime;
 	public boolean selected;
-	/*public Model(Integer status){
-		this.bargeItemStatus=status;
-	}*/
 	public Model(String name, String status, String time) {
 		this.bargeItemName = name;
 		this.bargeItemStatus = status;
 		this.bargeItemTime = time;
-		
-	//	selected = false;
 	}
-	
-	/*public Model(Integer status) {
-		this.bargeItemStatus = status;
-	//	selected = false;
-	}*/
 	
 	public String getBargeName() {
 		return bargeItemName;
