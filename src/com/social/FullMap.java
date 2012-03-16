@@ -58,19 +58,19 @@ public class FullMap extends MapActivity{
 	MapView map;
 	GeoPoint point1;
 	GeoPoint point2;
-    GeoPoint point3;
-    ArrayList<GeoPoint> geoList;
-    public static ExecutorService threadPool = Executors.newCachedThreadPool();
-    Handler handler;
-    MyOverlays greenOverlays,redOverlays,yellowOverlays;
-    private MyLocationOverlay me=null;
-    int i=1;
-    int APP_BEGIN=1;
-    SharedPreferences mpref, bargedata;
-    SharedPreferences.Editor edit, bargedataedit;
-    AlertDialog alertDialog;
-    Dialog viewOnly,helpcolor;
-    private Timer timer;
+	GeoPoint point3;
+	ArrayList<GeoPoint> geoList;
+	public static ExecutorService threadPool = Executors.newCachedThreadPool();
+	Handler handler;
+	MyOverlays greenOverlays,redOverlays,yellowOverlays;
+	private MyLocationOverlay me=null;
+	int i=1;
+	int APP_BEGIN=1;
+	SharedPreferences mpref, bargedata;
+	SharedPreferences.Editor edit, bargedataedit;
+	AlertDialog alertDialog;
+	Dialog viewOnly,helpcolor;
+	private Timer timer;
 	TelephonyManager myTelephony;
 	PhoneStateListener callStateListener;
 	ArrayList<String> BNameList,statList;
@@ -79,144 +79,126 @@ public class FullMap extends MapActivity{
 	MyOverlays mo;
 	RadioButton radio1,radio2, radio3, radio4;
 	TextView filtertext;
-    
+
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main1);
-        map=(MapView)findViewById(R.id.map);
-        map.setBuiltInZoomControls(true);
-        
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main1);
+		map=(MapView)findViewById(R.id.map);
+		map.setBuiltInZoomControls(true);
+		filtertext=(TextView)findViewById(R.id.filtertext);
+
         handler = new Handler();
-        
-		Intent intent = new Intent("com.google.android.c2dm.intent.REGISTER"); // Intent for C2DM sending
-		intent.putExtra("app",PendingIntent.getBroadcast(this, 0, new Intent(), 0));
-		intent.putExtra("sender", "sdpdbargeproject@gmail.com");
-		startService(intent);
-		
-		SharedPreferences prefsc2dm = PreferenceManager
-		.getDefaultSharedPreferences(this);
-		Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			String message = extras.getString("payload"); // The C2DM message.
-			if (message != null && message.length() > 0) {
-				Log.d("C2dM from server", message);
-				}
-		}
-        
-		
-        
-		mpref=FullMap.this.getSharedPreferences("mypref", Context.MODE_WORLD_WRITEABLE); 
+
+        Intent intent = new Intent("com.google.android.c2dm.intent.REGISTER"); // Intent for C2DM sending
+        intent.putExtra("app",PendingIntent.getBroadcast(this, 0, new Intent(), 0));
+        intent.putExtra("sender", "sdpdbargeproject@gmail.com");
+        startService(intent);
+
+        SharedPreferences prefsc2dm = PreferenceManager
+        .getDefaultSharedPreferences(this);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+        	String message = extras.getString("payload"); // The C2DM message.
+        	if (message != null && message.length() > 0) {
+        		Log.d("C2dM from server", message);
+        	}
+        }
+
+        mpref=FullMap.this.getSharedPreferences("mypref", Context.MODE_WORLD_WRITEABLE); 
         bargedata=FullMap.this.getSharedPreferences("bargedata", Context.MODE_WORLD_WRITEABLE);
         edit=mpref.edit();
         edit.putString("filter", "Show All"); // SharedPref storing state of the 'filter' option.
         edit.putBoolean("offline", false);
-    	edit.commit();
+        edit.commit();
         bargedataedit=bargedata.edit();
-        
-//        if(APP_BEGIN==1){        
-//        	edit.putBoolean("offline", false);
-//        	edit.commit();
-//        	APP_BEGIN+=1;
-//        }
-        
+
         toBargeMap=new Intent(FullMap.this,BargeMap.class);
-        
-        filtertext=(TextView)findViewById(R.id.filtertext);
-        
+
         MapController mapcontr=map.getController();
         mapcontr.setZoom(12);
         mapcontr.setCenter(new GeoPoint(28632888, 77119900));
-        
+
         viewOnly=new Dialog(FullMap.this);// Dialog for the 'Filter' option
-		viewOnly.setContentView(R.layout.viewonly);
-		viewOnly.setTitle("View Only:");
-		
-		helpcolor=new Dialog(FullMap.this);	// Dialog for the 'Help' option
-    	helpcolor.setContentView(R.layout.helpcolor);
-    	helpcolor.setTitle("Help");
-    }
+        viewOnly.setContentView(R.layout.viewonly);
+        viewOnly.setTitle("View Only:");
+
+        helpcolor=new Dialog(FullMap.this);	// Dialog for the 'Help' option
+        helpcolor.setContentView(R.layout.helpcolor);
+        helpcolor.setTitle("Help");
+	}
     
     
-    @Override
-    protected void onPause(){
-    	super.onPause();
-    	Connectivity.stopListeningToConn(FullMap.this); // Stop listening to the connection when paused.
-    	timer.cancel();
-    	Log.d("11111111111", "full map is NOT listening");
-    }
+	@Override
+	protected void onPause(){
+		super.onPause();
+		Connectivity.stopListeningToConn(FullMap.this); // Stop listening to the connection when paused.
+		timer.cancel();
+	}
     @Override
     protected void onResume(){
     	super.onResume();
     	Connectivity.checkNet(FullMap.this); // Start checking the connection when resumed.
-    	Log.d("FINAL", "fullmap started checknet");
-//    	Connectivity.LOST_CONN=0;
-//    	Log.d("FINAL", "FullMap set Lost_conn=0");
 
-    	timer=new Timer();
+    	timer=new Timer();	// Refresh map via timer task.
     	timer.scheduleAtFixedRate(new TimerTask(){
+    		@Override
+    		public void run() {
+    			final FetchParse fp=new FetchParse();
+    			try {
+    				blank_marker = getResources().getDrawable(R.drawable.green);
+    				fp.fetch();		//fetch and parse from server				
+    				BNameList=new ArrayList<String>();
+    				statList=new ArrayList<String>();
+    				lonList=new ArrayList<Integer>();latList=new ArrayList<Integer>();
+    				mo=new MyOverlays(blank_marker);
+    				if(!bargeOverlay.isEmpty()){
+    					mo.removeAll();
+    				}
+    				handler.post(new Runnable()	// Change the UI via handler
+    				{
+    					public void run()
+    					{
+    						Log.d("Timer","Inside UI thread");
+    						BNameList.clear();statList.clear();lonList.clear();bargeOverlay.clear();
+    						allOverlay.clear();
+    						for(int x=0;x<fp.namelist.size();x++){
+    							Log.d("11111111", "added "+fp.namelist.get(x));
+    							BNameList.add(fp.namelist.get(x));
+    							statList.add(fp.statlist.get(x));
+    							lonList.add(fp.lonlist.get(x));latList.add(fp.latlist.get(x));
+    							mo.addOverlay(new OverlayItem(new GeoPoint(latList.get(x),lonList.get(x)),BNameList.get(x),statList.get(x)));
+    						}
+    						map.getOverlays().clear();
+    						String filter=mpref.getString("filter", "Show All");
+    						if(filter.equals("Stopped")){
+    							mo.removeAllOverlay("Transporting");mo.removeAllOverlay("Docked");
+    						}else if(filter.equals("Transporting")){
+    							mo.removeAllOverlay("Docked");mo.removeAllOverlay("Stopped");
+    						}else if(filter.equals("Docked")){
+    							mo.removeAllOverlay("Transporting");mo.removeAllOverlay("Stopped");
+    						}else if(filter.equals("Show All")){
+    							map.getOverlays().add(mo);
+    							map.postInvalidate();
+    						}else{
+    							Log.d("1111111", "crap");
+    						}
+    						map.getOverlays().add(mo);
+    						map.postInvalidate();
+    					}
+    				});
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			} catch (JSONException e) {
+    				e.printStackTrace();
+    			}
 
-			@Override
-			public void run() {
-				Log.d("1111111", "refreshing");
-				final FetchParse fp=new FetchParse();
-				try {
-					blank_marker = getResources().getDrawable(R.drawable.green);
-					fp.fetch();		//fetch and parse from server				
-					BNameList=new ArrayList<String>();
-					statList=new ArrayList<String>();
-					lonList=new ArrayList<Integer>();latList=new ArrayList<Integer>();
-					mo=new MyOverlays(blank_marker);
-					if(!bargeOverlay.isEmpty()){
-						mo.removeAll();
-					}
-					handler.post(new Runnable()
-					{
-						public void run()
-						{
-							Log.d("Timer","Inside UI thread");
-							BNameList.clear();statList.clear();lonList.clear();bargeOverlay.clear();
-							allOverlay.clear();
-						    for(int x=0;x<fp.namelist.size();x++){
-								Log.d("11111111", "added "+fp.namelist.get(x));
-								BNameList.add(fp.namelist.get(x));
-								statList.add(fp.statlist.get(x));
-								lonList.add(fp.lonlist.get(x));latList.add(fp.latlist.get(x));
-								mo.addOverlay(new OverlayItem(new GeoPoint(latList.get(x),lonList.get(x)),BNameList.get(x),statList.get(x)));
-						    }
-						    map.getOverlays().clear();
-						    String filter=mpref.getString("filter", "Show All");
-						    if(filter.equals("Stopped")){
-						    	mo.removeAllOverlay("Transporting");mo.removeAllOverlay("Docked");
-						    }else if(filter.equals("Transporting")){
-						    	mo.removeAllOverlay("Docked");mo.removeAllOverlay("Stopped");
-						    }else if(filter.equals("Docked")){
-						    	mo.removeAllOverlay("Transporting");mo.removeAllOverlay("Stopped");
-						    }else if(filter.equals("Show All")){
-							    map.getOverlays().add(mo);
-							    map.postInvalidate();
-						    }else{
-						    	Log.d("1111111", "crap");
-						    }
-						    
-						    map.getOverlays().add(mo);
-						    map.postInvalidate();
-						    Log.d("1111111", "outside the for");
-						    
-						}
-					});
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-				
-			}
-        	
-        }, 0, 10000);	//after every 10 seconds
+    		}
+
+    	}, 0, 10000);	// refreshing after every 10 seconds
     	
-		map.getOverlays().clear();
+    	map.getOverlays().clear();
     	OnClickListener radio_listener=new OnClickListener(){
     		public void onClick(View v){
     			RadioButton rb=(RadioButton) v;
@@ -246,25 +228,25 @@ public class FullMap extends MapActivity{
     				filtertext.setText("Displaying All Barges");
     				mo.refillOverlays();
     				map.getOverlays().add(mo);
-				    map.postInvalidate();
-				    Log.d("$$$$$$$$", "not removing anything");
+    				map.postInvalidate();
+    				Log.d("$$$$$$$$", "not removing anything");
     				edit.putString("filter", "Show All");
     			}else{
-    				Log.d("11111111", "o oh");
+    				Log.d("Problem", "o oh");
     			}
     			edit.commit();
     			map.getOverlays().add(mo);
-			    map.postInvalidate();
+    			map.postInvalidate();	//post the changes to the map.
     		}
     	};
     	Button helpok=(Button)helpcolor.findViewById(R.id.helpok);
     	helpok.setOnClickListener(new OnClickListener(){
 
-			@Override
-			public void onClick(View arg0) {
-				helpcolor.dismiss();
-			}
-    		
+    		@Override
+    		public void onClick(View arg0) {
+    			helpcolor.dismiss();
+    		}
+
     	});
     	Button okbutton=(Button)viewOnly.findViewById(R.id.Ok);
     	okbutton.setOnClickListener(new OnClickListener(){
@@ -277,6 +259,7 @@ public class FullMap extends MapActivity{
     		
     	});
     	
+    	// Radio Buttons for the filter Barge dialog.
     	radio1=(RadioButton)viewOnly.findViewById(R.id.radio1);
     	radio2=(RadioButton)viewOnly.findViewById(R.id.radio2);
     	radio3=(RadioButton)viewOnly.findViewById(R.id.radio3);
@@ -287,6 +270,9 @@ public class FullMap extends MapActivity{
     	radio4.setOnClickListener(radio_listener);
     }
     
+    /*
+     * Method will show only particualr status' Barge. 
+     */
     public void showOnly(String filter){
 	    map.getOverlays().add(mo);
 	    map.postInvalidate();
@@ -301,9 +287,6 @@ public class FullMap extends MapActivity{
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-    	
-    	
-    	
     	switch(item.getItemId()){
     	case R.id.listview:
     		Intent i= new Intent(FullMap.this,BargeList.class );
@@ -340,7 +323,6 @@ public class FullMap extends MapActivity{
     		break;
     	default:
             return super.onOptionsItemSelected(item);
-            
     	}
     	return super.onOptionsItemSelected(item);
     }
@@ -356,20 +338,15 @@ public class FullMap extends MapActivity{
 	
 	private class MyOverlays extends ItemizedOverlay<OverlayItem>{
 		private Drawable blank_marker=null;
-		
 		public MyOverlays(Drawable blank_marker) {
 			super(blank_marker);
 			this.blank_marker=blank_marker;
-			Log.d("1111111","bargeOverlay.size()");
 			setLastFocusedIndex(-1);
 			populate();
 		}
 		
-		
-
 		@Override
 		protected OverlayItem createItem(int i) {
-			Log.d("11111111", bargeOverlay.get(i).getTitle());
 			return bargeOverlay.get(i);
 		}
 
@@ -379,6 +356,10 @@ public class FullMap extends MapActivity{
 			return bargeOverlay.size();
 		}
 		
+		/*
+		 * Given an OverlayItem as argument, this adds it to 
+		 * the arrayList of Overlays and re-populates the map.
+		 */
 		public void addOverlay(OverlayItem barge){
 			bargeOverlay.add(barge);
 			allOverlay.add(barge);
@@ -386,11 +367,13 @@ public class FullMap extends MapActivity{
 			populate();
 		}
 		
+		/*
+		 * String s: Either of "Transporting", "Docked" or "Stopped"
+		 * The method removes all overlays that have their status as the argument provided.
+		 */
 		public void removeAllOverlay(String s){
 			int remover=0;
-			Log.d("$$$$$$$", "size: "+bargeOverlay.size()+" string recieved: "+s);
 			for(remover=0;remover<bargeOverlay.size();remover++){
-				Log.d("$$$$$$$","checking: "+bargeOverlay.get(remover).getSnippet()+bargeOverlay.get(remover).getTitle());
 				if(bargeOverlay.get(remover).getSnippet().equals(s)){
 					Log.d("$$$$$$$", "removing "+bargeOverlay.get(remover).getSnippet()+bargeOverlay.get(remover).getTitle());
 					bargeOverlay.remove(remover);
@@ -398,30 +381,32 @@ public class FullMap extends MapActivity{
 				}else{
 					Log.d("$$$$$$", "not removing: "+bargeOverlay.get(remover).getTitle());
 				}
-//				for(z=0;z<bargeOverlay.size();z++){
-//					Log.d("$$$$$$", bargeOverlay.get(z).getTitle());
-//				}
 			}
-			Log.d("$$$$$$$$", "removeall finished for loop here. Ran for: "+bargeOverlay.size());
 			setLastFocusedIndex(-1);
 		}
 		
+		/*
+		 * Remove all the overlays from the arraylist.
+		 */
 		public void removeAll(){
-			Log.d("^^^^^^^^", "remove overlays");
 			if(!bargeOverlay.isEmpty()){
-				Log.d("^^^^^^^", "removed all overlays");
 				bargeOverlay.clear();
 			}
 			setLastFocusedIndex(-1);
 		}
+		
+		/*
+		 * Add all overlay items in `allOverlay` into `bargeOverlay`
+		 * This is useful when we need to refresh the list of Barge and update the map.
+		 */
 		public void refillOverlays(){
-			Log.d("^^^^^^^", "refill overlays");
 			removeAll();
 			for(int y=0;y<allOverlay.size();y++){
 				bargeOverlay.add(allOverlay.get(y));
 			}
 			setLastFocusedIndex(-1);
 		}
+		
 		@Override
 		public boolean onTap(int index){
 			refillOverlays(); 
@@ -430,8 +415,6 @@ public class FullMap extends MapActivity{
 			toBargeMap.putExtra("lat", bargeOverlay.get(index).getPoint().getLatitudeE6());
 			toBargeMap.putExtra("lon", bargeOverlay.get(index).getPoint().getLongitudeE6());
 			toBargeMap.putExtra("size", bargeOverlay.size());
-			Log.d("*****send", bargeOverlay.get(0).getTitle());
-			
 			startActivity(toBargeMap);
 			return true;
 		}
@@ -441,7 +424,6 @@ public class FullMap extends MapActivity{
 		{
 			Log.d("111111111", "ondraw");
 			super.draw(canvas, mapView, shadow);
-//			boundCenterBottom(blank_marker);
 			Paint blackText = new Paint();
 			Paint strokePaint=new Paint();
 			Point myScreenCoords = new Point();
