@@ -52,23 +52,12 @@ public class FullMap extends MapActivity{
 	public final static String AUTH = "authentication";
 	Intent toBargeMap=null;
 	MapView map;
-	GeoPoint point1;
-	GeoPoint point2;
-	GeoPoint point3;
-	ArrayList<GeoPoint> geoList;
-	public static ExecutorService threadPool = Executors.newCachedThreadPool();
 	Handler handler;
-	MyOverlays greenOverlays,redOverlays,yellowOverlays;
 	private MyLocationOverlay me=null;
-	int i=1;
-	int APP_BEGIN=1;
 	SharedPreferences mpref, bargedata;
 	SharedPreferences.Editor edit, bargedataedit;
-	AlertDialog alertDialog;
 	Dialog viewOnly,helpcolor;
 	private Timer timer;
-	TelephonyManager myTelephony;
-	PhoneStateListener callStateListener;
 	ArrayList<String> BNameList,statList;
 	ArrayList<Integer> latList=new ArrayList<Integer>(),lonList=new ArrayList<Integer>();
 	Drawable blank_marker;
@@ -132,6 +121,7 @@ public class FullMap extends MapActivity{
 		Connectivity.stopListeningToConn(FullMap.this); // Stop listening to the connection when paused.
 		timer.cancel();
 	}
+	
     @Override
     protected void onResume(){
     	super.onResume();
@@ -157,17 +147,20 @@ public class FullMap extends MapActivity{
     					public void run()
     					{
     						Log.d("Timer","Inside UI thread");
-    						BNameList.clear();statList.clear();lonList.clear();bargeOverlay.clear();
+    						BNameList.clear();statList.clear();lonList.clear();bargeOverlay.clear();	//cleaning, just in case.
     						allOverlay.clear();
-    						for(int x=0;x<fp.namelist.size();x++){
+    						
+    						for(int x=0;x<fp.namelist.size();x++){		//Add the fetched barges into the lists referred by the map.
     							Log.d("11111111", "added "+fp.namelist.get(x));
     							BNameList.add(fp.namelist.get(x));
     							statList.add(fp.statlist.get(x));
     							lonList.add(fp.lonlist.get(x));latList.add(fp.latlist.get(x));
     							mo.addOverlay(new OverlayItem(new GeoPoint(latList.get(x),lonList.get(x)),BNameList.get(x),statList.get(x)));
     						}
-    						map.getOverlays().clear();
+    						
+    						map.getOverlays().clear();	//Clear all the overlays from the map.
     						String filter=mpref.getString("filter", "Show All");
+    						//Depending on what the user wants to filter, keep only those things inside 'mo'
     						if(filter.equals("Stopped")){
     							mo.removeAllOverlay("Transporting");mo.removeAllOverlay("Docked");
     						}else if(filter.equals("Transporting")){
@@ -180,8 +173,9 @@ public class FullMap extends MapActivity{
     						}else{
     							Log.d("1111111", "crap");
     						}
-    						map.getOverlays().add(mo);
-    						map.postInvalidate();
+    						
+    						map.getOverlays().add(mo);	//Add whatevers left in 'mo' into the map.
+    						map.postInvalidate();	// Tell the map that stuff has changed. Refreshes. 
     					}
     				});
     			} catch (IOException e) {
@@ -192,20 +186,23 @@ public class FullMap extends MapActivity{
 
     		}
 
-    	}, 0, 10000);	// refreshing after every 10 seconds
+    	}, 0, 10000);	// Refreshing the map after every 10 seconds
     	
     	map.getOverlays().clear();
+    	/*
+    	 * Handle the click events of the radio buttons for the filter option.
+    	 */
     	OnClickListener radio_listener=new OnClickListener(){
     		public void onClick(View v){
     			RadioButton rb=(RadioButton) v;
     			String filter=rb.getText().toString();
     			if(filter.equals("Stopped")){
     				filtertext.setText("Displaying Stopped Barges");
-    				mo.refillOverlays();
-    				mo.removeAllOverlay("Transporting");
+    				mo.refillOverlays();					// Put back everything into 'mo'
+    				mo.removeAllOverlay("Transporting");	//Take out whatevers not needed.
     				mo.removeAllOverlay("Docked");
     				Log.d("$$$$$$$", "called remove for trnsprt and docked");
-    				edit.putString("filter", "Stopped");
+    				edit.putString("filter", "Stopped");	// Let everyone know whats being shown.
     			}else if(filter.equals("Transporting")){
     				filtertext.setText("Displaying Transporting Barges");
     				mo.refillOverlays();
@@ -231,10 +228,11 @@ public class FullMap extends MapActivity{
     				Log.d("Problem", "o oh");
     			}
     			edit.commit();
-    			map.getOverlays().add(mo);
+    			map.getOverlays().add(mo);	//Populate the map with whatevers left in 'mo'
     			map.postInvalidate();	//post the changes to the map.
     		}
     	};
+    	
     	Button helpok=(Button)helpcolor.findViewById(R.id.helpok);
     	helpok.setOnClickListener(new OnClickListener(){
 
@@ -295,7 +293,6 @@ public class FullMap extends MapActivity{
     		startActivity(i);
     		return true;
 		case R.id.refine:
-			Log.d("@@@@@@@", "refine");
     		String filter=mpref.getString("filter", "Show All");
     		if(filter.equals("Show All")){
     			radio4.setSelected(true);
