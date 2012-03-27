@@ -1,5 +1,7 @@
 # Barge Tracker #
 
+**Note**: The Demo app does not try to ping the server. Values are hard-coded currently. The code for pinging and retrieving is commented out in 'FetchParse.java'. If server is up, then un-comment that portion, comment out the hard-coded values and all should work fine.
+
 **This Android application was developed as part of the course project for "Software Development for portable devices".**
 
 **Description:** The app has 3 activities.
