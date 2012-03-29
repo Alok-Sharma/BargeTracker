@@ -1,5 +1,7 @@
 # Barge Tracker #
 
+**Note**: You can download the apk from the 'Downloads' folder inside the project. I was not able to upload it to the Downloads section due to some problems with the Git uploader.
+
 **Note**: The Demo app does not try to ping the server. Values are hard-coded currently. The code for pinging and retrieving is commented out in 'FetchParse.java'. If server is up, then un-comment that portion, comment out the hard-coded values and all should work fine.
 
 **This Android application was developed as part of the course project for "Software Development for portable devices".**
